@@ -1,0 +1,68 @@
+package textExcel;
+
+public class FormulaCell extends RealCell {
+	private Spreadsheet spr;
+	public FormulaCell(String value){
+		//stores original string to be used
+		super(value);
+	}
+	public FormulaCell(String value, Spreadsheet spr) {
+		//Also has spreadsheet so the FormulaCell's value is updated as the Spreadsheet is updated
+		super(value);
+		spr=spr;
+	}
+
+	public String fullCellText(){
+		//Returns formula
+		return getString();
+	}
+	public String abbreviatedCellText(){
+		//returns answer of the formula as a string
+		return String.format("%-10s", ""+getDoubleValue());
+	}
+	public double getDoubleValue(){
+		//returns the answer to the formula as a double
+		String[] split = getString().split(" ");
+		double[] formula = new double[split.length/2];
+		int j=0;
+		for(int i=0;i<split.length;i++){
+			if(Character.isLetter(split[i].charAt(0))){
+				SpreadsheetLocation loc = new SpreadsheetLocation(split[i]);
+				formula[j]=((RealCell) spr.getCell(loc)).getDoubleValue();
+				System.out.println("formula["+j+"] = "+formula[j]);
+				j++;
+			}
+			else if((i+1)%2==0){
+				formula[j]=Double.parseDouble(split[i]);
+				System.out.println("formula["+j+"] = "+formula[j]);
+				j++;
+			}
+		}	
+		double answer=formula[0];
+		for(int i=0;i<formula.length;i++){
+			if(split[i+1].equals("+"))
+				answer += formula[i];
+			else if(split[i+1].equals("/"))
+				answer /= formula[i+1];
+			else if(split[i+1].equals("*"))
+				answer *= formula[i+1];
+			else if(split[i+1].equals("-"))
+				answer -= formula[i+1];
+=======
+		String[] formula = getString().split(" ");
+		double answer=0.0;
+		for(int i=0;i<formula.length;i++){
+			if(formula[i].equals("+"))
+				answer = Double.parseDouble(formula[i-1])+Double.parseDouble(formula[i+1]);
+			else if(formula[i].equals("/"))
+				answer = Double.parseDouble(formula[i-1])/Double.parseDouble(formula[i+1]);
+			else if(formula[i].equals("*"))
+				answer = Double.parseDouble(formula[i-1])*Double.parseDouble(formula[i+1]);
+			else if(formula[i].equals("-"))
+				answer = Double.parseDouble(formula[i-1])-Double.parseDouble(formula[i+1]);
+>>>>>>> parent of 63c4171... Working on Checkpoint B final
+		}
+		return answer;
+	}
+	
+}
